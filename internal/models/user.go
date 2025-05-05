@@ -24,3 +24,8 @@ type RegisterRequest struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
+
+type LoginRequest struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}

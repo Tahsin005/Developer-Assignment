@@ -11,6 +11,7 @@ import (
 type Config struct {
 	DBUrl string
 	Port string
+	JWT_SECRET string
 }
 
 type DBConfig struct {
@@ -41,6 +42,7 @@ func LoadConfig() *Config {
 		dbConfig.DBHost, dbConfig.DBUser, dbConfig.DBPassword, dbConfig.DBName, dbConfig.DBPort,
 	)
 	port := os.Getenv("SERVER_PORT")
+	jwtSecret := os.Getenv("JWT_SECRET")
 
 	if port == "" {
 		port = "8080"
@@ -51,6 +53,7 @@ func LoadConfig() *Config {
 
 	return &Config{
 		DBUrl: dbURL,
+		JWT_SECRET: jwtSecret,
 		Port:  port,
 	}
 }
