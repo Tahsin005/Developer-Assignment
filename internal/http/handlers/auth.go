@@ -102,15 +102,15 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// response
-	userResp := models.UserResponse{
-		ID:        userID.String(),
+	userResp := models.RegisterUserResponse{
+		ID:        userID,
 		Username:  req.Username,
 		Email:     req.Email,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		UserType:  "user",
-		CreatedAt: now.Format(time.RFC3339),
-		UpdatedAt: now.Format(time.RFC3339),
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	w.WriteHeader(http.StatusCreated)
