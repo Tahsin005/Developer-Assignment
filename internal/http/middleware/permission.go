@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/tahsin005/affpilot-auth/internal/utils"
 )
 
 func PermissionMiddleware(db *sql.DB, requiredPermission string) mux.MiddlewareFunc {
@@ -12,7 +13,7 @@ func PermissionMiddleware(db *sql.DB, requiredPermission string) mux.MiddlewareF
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := r.Context().Value("user").(*Claims)
 			if !ok {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				utils.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 				return
 			}
 
@@ -29,12 +30,12 @@ func PermissionMiddleware(db *sql.DB, requiredPermission string) mux.MiddlewareF
 			`
 			err := db.QueryRow(query, claims.UserID, requiredPermission).Scan(&hasPermission)
 			if err != nil {
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				utils.WriteError(w, http.StatusInternalServerError, "Internal server error")
 				return
 			}
-
+			
 			if !hasPermission {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+				utils.WriteError(w, http.StatusForbidden, "Forbidden")
 				return
 			}
 
@@ -48,7 +49,7 @@ func SelfOrAuthorizedMiddleware(db *sql.DB, requiredPermission string) mux.Middl
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := r.Context().Value("user").(*Claims)
 			if !ok {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				utils.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 				return
 			}
 
@@ -73,12 +74,12 @@ func SelfOrAuthorizedMiddleware(db *sql.DB, requiredPermission string) mux.Middl
 			`
 			err := db.QueryRow(query, claims.UserID, requiredPermission).Scan(&hasPermission)
 			if err != nil {
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				utils.WriteError(w, http.StatusInternalServerError, "Internal server error")
 				return
 			}
 
 			if !hasPermission {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+				utils.WriteError(w, http.StatusForbidden, "Forbidden")
 				return
 			}
 

@@ -13,7 +13,7 @@ func RegisterUserRoutes(r *mux.Router, secretKey string) {
 	users := r.PathPrefix("/users").Subrouter()
 	users.Use(middleware.AuthMiddleware(secretKey))
 
-	users.Handle("/", middleware.PermissionMiddleware(database.DB, "user:read:all")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
+	users.Handle("/", middleware.PermissionMiddleware(database.DB, "user:read:all")(http.HandlerFunc(handlers.UsersListHandler))).Methods(http.MethodGet)
 	users.Handle("/{user_id}", middleware.SelfOrAuthorizedMiddleware(database.DB, "user:read:all")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
 	users.Handle("/{user_id}", middleware.SelfOrAuthorizedMiddleware(database.DB, "user:update:all")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPut)
 	users.Handle("/{user_id}/request-deletion", middleware.SelfOrAuthorizedMiddleware(database.DB, "user:delete:self")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPost)

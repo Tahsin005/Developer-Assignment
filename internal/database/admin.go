@@ -41,25 +41,28 @@ func CreateSystemAdminIfNotExists() {
 
 	adminID := uuid.New()
 	now := time.Now()
+	verificationToken := uuid.NewString()
+	tokenExpiry := now.AddDate(5, 0, 0)
 
 	queryStatement = `
 		INSERT INTO users (
 			id, username, email, password_hash, first_name, last_name, email_verified,
-			user_type, deletion_requested, active, created_at, updated_at
+			user_type, deletion_requested, active, created_at, updated_at,
+			verification_token, token_expiry
 		) VALUES (
 			$1, $2, $3, $4, 'Admin', 'User', TRUE,
-			'admin', FALSE, TRUE, $5, $5
+			'system_admin', FALSE, TRUE, $5, $5,
+			$6, $7
 		)
 	`
-	_, err = DB.Exec(queryStatement, adminID, username, email, string(hashedPassword), now)
-
+	_, err = DB.Exec(queryStatement, adminID, username, email, string(hashedPassword), now, verificationToken, tokenExpiry)
 	if err != nil {
 		log.Println("Failed to create system admin:", err)
 		return
 	}
 
 	var roleID uuid.UUID
-	queryStatement = `SELECT id FROM roles WHERE name = 'admin'`
+	queryStatement = `SELECT id FROM roles WHERE name = 'system_admin'`
 	err = DB.QueryRow(queryStatement).Scan(&roleID)
 	if err != nil {
 		log.Println("Failed to fetch admin role:", err)
@@ -69,7 +72,7 @@ func CreateSystemAdminIfNotExists() {
 	queryStatement = `INSERT INTO user_roles (user_id, role_id, assigned_by, created_at) VALUES ($1, $2, $3, $4)`
 	_, err = DB.Exec(queryStatement, adminID, roleID, adminID, now)
 	if err != nil {
-		log.Println("Failed to assign admin role:", err)
+		log.Println("Failed to assign system admin role:", err)
 		return
 	}
 
