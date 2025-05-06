@@ -17,6 +17,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+// jwt token based middleware
 func AuthMiddleware(secretKey string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

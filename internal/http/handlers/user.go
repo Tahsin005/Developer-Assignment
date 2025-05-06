@@ -240,3 +240,22 @@ func UserUpdateDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		"user":    response,
 	})
 }
+
+
+func UserDeletionRequestHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// vars := mux.Vars(r)
+	// userIDStr := vars["user_id"]
+
+	// userID, err := uuid.Parse(userIDStr)
+	// if err != nil {
+	// 	utils.WriteError(w, http.StatusBadRequest, "Invalid user_id format")
+	// 	return
+	// }
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Your deletion request has been sent successfully",
+	})
+}
