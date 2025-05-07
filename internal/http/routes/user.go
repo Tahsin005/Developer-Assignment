@@ -25,7 +25,7 @@ func RegisterUserRoutes(r *mux.Router, secretKey string) {
 
 	users.Handle("/{user_id}/role", middleware.RoleMiddleware("system_admin", "admin")(http.HandlerFunc(handlers.UserRoleChangeHandler))).Methods(http.MethodPost)
 
-	users.Handle("/{user_id}/promote/admin", middleware.PermissionMiddleware(database.DB, "user:promote:admin")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPost)
+	users.Handle("/{user_id}/promote/admin", middleware.PermissionMiddleware(database.DB, "user:promote:admin")(http.HandlerFunc(handlers.UserPromoteAdminHandler))).Methods(http.MethodPost)
 
 	users.Handle("/{user_id}/promote/moderator", middleware.PermissionMiddleware(database.DB, "user:promote:moderator")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPost)
 
