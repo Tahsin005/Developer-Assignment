@@ -31,6 +31,6 @@ func RegisterUserRoutes(r *mux.Router, secretKey string) {
 
 	users.Handle("/{user_id}/demote", middleware.PermissionMiddleware(database.DB, "user:demote")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPost)
 	
-	r.Handle("/me", middleware.AuthMiddleware(secretKey)(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
+	r.Handle("/me", middleware.AuthMiddleware(secretKey)(http.HandlerFunc(handlers.GetCurrentUser))).Methods(http.MethodGet)
 	r.Handle("/me/permissions", middleware.AuthMiddleware(secretKey)(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
 }
