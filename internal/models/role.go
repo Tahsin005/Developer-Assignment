@@ -8,6 +8,16 @@ type Role struct {
 	Description string    `json:"description,omitempty"`
 }
 
+type RoleCreateRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
+type RoleCreateResponse struct {
+	Message string `json:"message"`
+	Role    Role   `json:"role"`
+}
+
 type RoleDemoteRequest struct {
 	Role string `json:"role"`
 }
