@@ -18,6 +18,16 @@ type RoleCreateResponse struct {
 	Role    Role   `json:"role"`
 }
 
+type RoleUpdateRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type RoleUpdateResponse struct {
+	Message string `json:"message"`
+	Role    Role   `json:"role"`
+}
+
 type RoleDemoteRequest struct {
 	Role string `json:"role"`
 }
