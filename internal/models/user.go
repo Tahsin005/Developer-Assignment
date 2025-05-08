@@ -7,21 +7,20 @@ import (
 )
 
 type User struct {
-	ID                uuid.UUID `json:"id"`
-	Username          string    `json:"username"`
-	Email             string    `json:"email"`
-	FirstName         string    `json:"first_name"`
-	LastName          string    `json:"last_name"`
-	EmailVerified     bool      `json:"email_verified"`
-	UserType          string    `json:"user_type"`
-	VerificationToken string    `json:"verification_token,omitempty"`
+	ID                uuid.UUID  `json:"id"`
+	Username          string     `json:"username"`
+	Email             string     `json:"email"`
+	FirstName         string     `json:"first_name"`
+	LastName          string     `json:"last_name"`
+	EmailVerified     bool       `json:"email_verified"`
+	UserType          string     `json:"user_type"`
+	VerificationToken string     `json:"verification_token,omitempty"`
 	TokenExpiry       *time.Time `json:"token_expiry,omitempty"`
-	DeletionRequested bool      `json:"deletion_requested"`
-	Active            bool      `json:"active"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	DeletionRequested bool       `json:"deletion_requested"`
+	Active            bool       `json:"active"`
+	CreatedAt         time.Time  `json:"created_at"`
+	UpdatedAt         time.Time  `json:"updated_at"`
 }
-
 
 type RegisterRequest struct {
 	Username  string `json:"username"`
@@ -32,37 +31,42 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-    Username string `json:"username"`
-    Password string `json:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type UserUpdateRequest struct {
-    Username  string `json:"username"`
+	Username  string `json:"username"`
 	Email     string `json:"email"`
-    FirstName string `json:"first_name"`
-    LastName string `json:"last_name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type RegisterUserResponse struct {
 	ID        uuid.UUID `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	UserType  string `json:"user_type"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	UserType  string    `json:"user_type"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type UpdateUserResponse struct {
-    ID            uuid.UUID `json:"id"`
-    Username      string    `json:"username"`
-    Email         string    `json:"email"`
-    FirstName     string    `json:"first_name"`
-    LastName      string    `json:"last_name"`
-    EmailVerified bool      `json:"email_verified"`
-    UserType      string    `json:"user_type"`
-    Active        bool      `json:"active"`
-    CreatedAt     time.Time `json:"created_at"`
-    UpdatedAt     time.Time `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	Username      string    `json:"username"`
+	Email         string    `json:"email"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	EmailVerified bool      `json:"email_verified"`
+	UserType      string    `json:"user_type"`
+	Active        bool      `json:"active"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+type CurrentUserPermissionsResponse struct {
+	Message     string   `json:"message"`
+	Permissions []string `json:"permissions"`
 }

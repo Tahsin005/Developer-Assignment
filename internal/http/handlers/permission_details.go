@@ -14,11 +14,6 @@ import (
 	"github.com/tahsin005/affpilot-auth/internal/utils"
 )
 
-type PermissionDetailsResponse struct {
-	Message    string     `json:"message"`
-	Permission models.Permission `json:"permission"`
-}
-
 func PermissionDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -58,7 +53,7 @@ func PermissionDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	p.Description = description.String
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(PermissionDetailsResponse{
+	json.NewEncoder(w).Encode(models.PermissionDetailsResponse{
 		Message:    "Permission details retrieved successfully",
 		Permission: p,
 	})

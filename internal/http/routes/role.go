@@ -13,8 +13,8 @@ func RegisterRoleRoutes(r *mux.Router, secretKey string) {
 	roles := r.PathPrefix("/roles").Subrouter()
 	roles.Use(middleware.AuthMiddleware(secretKey))
 
-	roles.Handle("/", middleware.PermissionMiddleware(database.DB, "role:read")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
-	roles.Handle("/{role_id}", middleware.PermissionMiddleware(database.DB, "role:read")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodGet)
+	roles.Handle("/", middleware.PermissionMiddleware(database.DB, "role:read")(http.HandlerFunc(handlers.RoleListHandler))).Methods(http.MethodGet)
+	roles.Handle("/{role_id}", middleware.PermissionMiddleware(database.DB, "role:read")(http.HandlerFunc(handlers.RoleDetailsHandler))).Methods(http.MethodGet)
 	roles.Handle("/", middleware.PermissionMiddleware(database.DB, "role:create")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPost)
 	roles.Handle("/{role_id}", middleware.PermissionMiddleware(database.DB, "role:update")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodPut)
 	roles.Handle("/{role_id}", middleware.PermissionMiddleware(database.DB, "role:delete")(http.HandlerFunc(handlers.CheckHealth))).Methods(http.MethodDelete)

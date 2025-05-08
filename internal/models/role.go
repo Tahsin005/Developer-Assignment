@@ -1,10 +1,27 @@
 package models
 
+import "github.com/google/uuid"
+
+type Role struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+}
+
 type RoleDemoteRequest struct {
 	Role string `json:"role"`
 }
 
-
 type RoleChangeRequest struct {
 	Role string `json:"role"`
+}
+
+type RoleListResponse struct {
+	Message string `json:"message"`
+	Roles   []Role `json:"roles"`
+}
+
+type RoleDetailsResponse struct {
+	Message string `json:"message"`
+	Role    Role   `json:"role"`
 }

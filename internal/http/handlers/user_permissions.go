@@ -9,13 +9,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/http/middleware"
+	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/utils"
 )
 
-type CurrentUserPermissionsResponse struct {
-	Message     string   `json:"message"`
-	Permissions []string `json:"permissions"`
-}
 
 func CurrentUserPermissions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -73,7 +70,7 @@ func CurrentUserPermissions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(CurrentUserPermissionsResponse{
+	json.NewEncoder(w).Encode(models.CurrentUserPermissionsResponse{
 		Message:     fmt.Sprintf("Here are your permissions (as a %s)", user.UserType),
 		Permissions: permissions,
 	})
