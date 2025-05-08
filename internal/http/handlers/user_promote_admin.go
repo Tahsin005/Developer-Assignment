@@ -51,8 +51,8 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.UserType == "system_admin" {
-		utils.WriteError(w, http.StatusBadRequest, "User is already a system admin")
+	if user.UserType == "admin" {
+		utils.WriteError(w, http.StatusBadRequest, "User is already a admin")
 		return
 	}
 
@@ -73,9 +73,9 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 			INSERT INTO user_roles (user_id, role_id, assigned_by, created_at)
 			VALUES ($1, (SELECT id FROM roles WHERE name = $2), $3, $4)
 		`
-		_, err = tx.Exec(query, userID, "system_admin", claims.UserID, time.Now())
+		_, err = tx.Exec(query, userID, "admin", claims.UserID, time.Now())
 		if err != nil {
-			utils.WriteError(w, http.StatusInternalServerError, "Failed to assign system admin role")
+			utils.WriteError(w, http.StatusInternalServerError, "Failed to assign admin role")
 			return
 		}
 	} else if err != nil {
@@ -87,9 +87,9 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 			SET role_id = (SELECT id FROM roles WHERE name = $1), assigned_by = $2, created_at = $3
 			WHERE user_id = $4
 		`
-		result, err := tx.Exec(query, "system_admin", claims.UserID, time.Now(), userID)
+		result, err := tx.Exec(query, "admin", claims.UserID, time.Now(), userID)
 		if err != nil {
-			utils.WriteError(w, http.StatusInternalServerError, "Failed to update user role to system admin")
+			utils.WriteError(w, http.StatusInternalServerError, "Failed to update user role to admin")
 			return
 		}
 		rowsAffected, err := result.RowsAffected()
@@ -98,7 +98,7 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if rowsAffected == 0 {
-			utils.WriteError(w, http.StatusInternalServerError, "Failed to update user role to system admin")
+			utils.WriteError(w, http.StatusInternalServerError, "Failed to update user role to admin")
 			return
 		}
 	}
@@ -108,9 +108,9 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 		SET user_type = $1, updated_at = $2
 		WHERE id = $3 AND active = TRUE
 	`
-	result, err := tx.Exec(query, "system_admin", time.Now(), userID)
+	result, err := tx.Exec(query, "admin", time.Now(), userID)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to update user type to system admin")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to update user type to admin")
 		return
 	}
 
@@ -131,6 +131,6 @@ func UserPromoteAdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "User role changed to system_admin successfully",
+		"message": "User role changed to admin successfully",
 	})
 }
