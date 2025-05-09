@@ -66,6 +66,10 @@ type UpdateUserResponse struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
+type ResendVerificationEmailRequest struct {
+	Email         string    `json:"email"`
+}
+
 type CurrentUserPermissionsResponse struct {
 	Message     string   `json:"message"`
 	Permissions []string `json:"permissions"`

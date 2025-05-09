@@ -44,9 +44,13 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if time.Now().After(tokenExpiry) {
+
+	if time.Now().UTC().After(tokenExpiry) {
 		utils.WriteError(w, http.StatusBadRequest, "Verification token has expired")
 		return
+	} else {
+		log.Printf("Token expiry: %v", tokenExpiry)
+		log.Println(time.Now())
 	}
 
 	// Update user to verified and active

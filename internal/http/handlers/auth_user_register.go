@@ -58,8 +58,10 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID := uuid.New()
 	verificationToken := uuid.New().String()
-	tokenExpiry := time.Now().Add(5 * time.Minute)
-	now := time.Now()
+	// tokenExpiry := time.Now().Add(5 * time.Minute)
+	// now := time.Now()
+	tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
+	now := time.Now().UTC()
 
 	queryStatement = `
 		INSERT INTO users (
