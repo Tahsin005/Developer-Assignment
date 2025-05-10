@@ -107,10 +107,10 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	verificationLink := fmt.Sprintf("%s/%s", emailVerficationURL, verificationToken)
 	emailBody := fmt.Sprintf(
-		"Welcome to Affpilot!\n\nPlease verify your email by clicking the following link:\n%s\n\nThis link will expire in 2 hours.",
+		"Welcome to Affpilot!\n\nPlease verify your email by clicking the following link:\n%s\n\nThis link will expire in 5 minutes.",
 		verificationLink,
 	)
-	go services.SendEmail(req.Email, emailBody)
+	go services.SendEmail(req.Email, emailBody, "Affpilot Email Verification")
 
 	userResp := models.RegisterUserResponse{
 		ID:        userID,

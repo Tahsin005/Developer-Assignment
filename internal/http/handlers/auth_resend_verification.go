@@ -80,7 +80,7 @@ func ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		"Welcome to Affpilot!\n\nPlease verify your email by clicking the following link:\n%s\n\nThis link will expire in 5 minutes.",
 		verificationLink,
 	)
-	go services.SendEmail(req.Email, emailBody)
+	go services.SendEmail(req.Email, emailBody, "Resend Verification Email")
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{

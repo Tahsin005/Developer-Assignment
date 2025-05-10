@@ -74,3 +74,12 @@ type CurrentUserPermissionsResponse struct {
 	Message     string   `json:"message"`
 	Permissions []string `json:"permissions"`
 }
+
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+type PasswordResetConfirmRequest struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}

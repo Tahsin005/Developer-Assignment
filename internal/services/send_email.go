@@ -7,14 +7,14 @@ import (
 	"os"
 )
 
-func SendEmail(email, textToBeSent string) {
+func SendEmail(email, textToBeSent, subject string) {
 	from := os.Getenv("EMAIL_FROM")
     pass := os.Getenv("EMAIL_PASSWORD")
     to := email
 
     msg := "From: " + from + "\n" +
         "To: " + to + "\n" +
-        "Subject: Hello there\n\n" +
+        "Subject:" + subject + "\n\n" +
         textToBeSent
 
     err := smtp.SendMail(fmt.Sprintf("%s:%s", os.Getenv("EMAIL_HOST"), os.Getenv("EMAIL_PORT")),

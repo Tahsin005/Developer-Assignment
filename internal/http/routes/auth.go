@@ -15,7 +15,8 @@ func RegisterAuthRoutes(r *mux.Router, secretKey string) {
 	auth.HandleFunc("/login", handlers.UserLoginHandler).Methods(http.MethodPost)
 	auth.HandleFunc("/verify/{verification_token}", handlers.VerifyEmailHandler).Methods(http.MethodGet)
 	auth.HandleFunc("/resend-verification", handlers.ResendVerificationEmail).Methods(http.MethodPost)
-	auth.HandleFunc("/password-reset", handlers.CheckHealth).Methods(http.MethodPost)
+	auth.HandleFunc("/reset-request", handlers.PasswordResetRequestHandler).Methods(http.MethodPost)
+	auth.HandleFunc("/password-reset", handlers.PasswordResetHandler).Methods(http.MethodPost)
 
 	auth.Handle("/logout", middleware.AuthMiddleware(secretKey)(http.HandlerFunc(handlers.UserLogoutHandler))).Methods(http.MethodGet)
 }
