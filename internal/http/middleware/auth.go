@@ -33,7 +33,7 @@ func AuthMiddleware(secretKey string) mux.MiddlewareFunc {
 					return
 				}
 			} else {
-				cookie, err := r.Cookie("jwt_token")
+				cookie, err := r.Cookie("token")
 				if err != nil {
 					utils.WriteError(w, http.StatusUnauthorized, "Missing authentication token")
 					return

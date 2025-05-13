@@ -70,9 +70,39 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt_token",
+		Name:     "token",
 		Value:    tokenString,
 		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "role",
+		Value:    roleName,
+		Expires:  time.Now().Add(1000 * time.Hour),
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "username",
+		Value:    req.Username,
+		Expires:  time.Now().Add(1000 * time.Hour),
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "id",
+		Value:    userID.String(),
+		Expires:  time.Now().Add(1000 * time.Hour),
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
@@ -83,5 +113,8 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Login successful",
 		"token":   tokenString,
+		"role": roleName,
+		"username": req.Username,
+		"id": userID.String(),
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 	"github.com/tahsin005/affpilot-auth/internal/config"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/http/routes"
@@ -24,6 +25,14 @@ func main() {
 	defer database.DB.Close()
 
 	router := routes.RegisterRoutes()
+
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Frontend origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}).Handler(router)
+	
 	log.Println("Starting server on port " + cfg.Port)
-	log.Fatal(http.ListenAndServe(":" + cfg.Port, router))
+	log.Fatal(http.ListenAndServe(":" + cfg.Port, corsHandler))
 }
