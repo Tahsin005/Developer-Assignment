@@ -41,7 +41,7 @@ func CurrentUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 	var permissions []string
 	query := `
-		SELECT DISTINCT p.name
+		SELECT DISTINCT p.description
 		FROM permissions p
 		JOIN role_permissions rp ON p.id = rp.permission_id
 		JOIN roles r ON rp.role_id = r.id

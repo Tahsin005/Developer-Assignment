@@ -34,18 +34,30 @@ func PasswordResetRequestHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Password reset requested for email: %s", req.Email)
 
 	var userID string
-	query := `SELECT id FROM users WHERE email = $1`
-	err := database.DB.QueryRow(query, req.Email).Scan(&userID)
+	var emailVerified, isActive bool
+
+	query := `SELECT id, email_verified, active FROM users WHERE email = $1`
+	err := database.DB.QueryRow(query, req.Email).Scan(&userID, &emailVerified, &isActive)
+
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("Database error checking email: %v", err)
 		utils.WriteError(w, http.StatusInternalServerError, "Database error")
 		return
 	}
 
-	resetToken := uuid.New().String()
-	tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
-
 	if err != sql.ErrNoRows {
+		if !emailVerified {
+			utils.WriteError(w, http.StatusForbidden, "Email not verified. Please verify your email before requesting a password reset.")
+			return
+		}
+		if !isActive {
+			utils.WriteError(w, http.StatusForbidden, "Account is deactivated. Please contact support.")
+			return
+		}
+
+		resetToken := uuid.New().String()
+		tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
+
 		query = `
 			UPDATE users
 			SET verification_token = $1, token_expiry = $2, updated_at = NOW()
@@ -64,7 +76,7 @@ Your password reset token is:
 
 		%s
 
-Please use this token to reset your password. The token will expire in 2 hours.
+Please use this token to reset your password. The token will expire in 5 minutes.
 If you did not request this, please ignore this email.
 Best regards,  
 The Affpilot Team`, resetToken)
@@ -74,6 +86,6 @@ The Affpilot Team`, resetToken)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "If an account with that email exists, a password reset token has been sent.",
+		"message": "If an account with that email exists and is verified, a password reset token has been sent.",
 	})
 }

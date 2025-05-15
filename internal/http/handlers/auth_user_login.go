@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -34,16 +35,29 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var userID uuid.UUID
 	var passwordHash, roleName string
+	var emailVerified, isActive bool
+
 	query := `
-		SELECT u.id, u.password_hash, r.name
+		SELECT u.id, u.password_hash, r.name, u.email_verified, u.active
 		FROM users u
 		LEFT JOIN user_roles ur ON u.id = ur.user_id
 		LEFT JOIN roles r ON ur.role_id = r.id
-		WHERE u.username = $1 AND u.active = TRUE
+		WHERE u.username = $1
 	`
-	err := database.DB.QueryRow(query, req.Username).Scan(&userID, &passwordHash, &roleName)
+	err := database.DB.QueryRow(query, req.Username).Scan(&userID, &passwordHash, &roleName, &emailVerified, &isActive)
 	if err != nil {
+		log.Println(err)
 		utils.WriteError(w, http.StatusUnauthorized, "Invalid username or password")
+		return
+	}
+
+	if !isActive {
+		utils.WriteError(w, http.StatusForbidden, "Account is deactivated. Please contact support.")
+		return
+	}
+
+	if !emailVerified {
+		utils.WriteError(w, http.StatusUnauthorized, "Email not verified. Please verify your email before logging in.")
 		return
 	}
 
@@ -69,52 +83,22 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-		Value:    tokenString,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "role",
-		Value:    roleName,
-		Expires:  time.Now().Add(1000 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "username",
-		Value:    req.Username,
-		Expires:  time.Now().Add(1000 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "id",
-		Value:    userID.String(),
-		Expires:  time.Now().Add(1000 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-	})
+	cookies := []http.Cookie{
+		{Name: "token", Value: tokenString, Expires: time.Now().Add(24 * time.Hour), HttpOnly: true, Secure: false, SameSite: http.SameSiteStrictMode, Path: "/"},
+		{Name: "role", Value: roleName, Expires: time.Now().Add(1000 * time.Hour), HttpOnly: true, Secure: false, SameSite: http.SameSiteStrictMode, Path: "/"},
+		{Name: "username", Value: req.Username, Expires: time.Now().Add(1000 * time.Hour), HttpOnly: true, Secure: false, SameSite: http.SameSiteStrictMode, Path: "/"},
+		{Name: "id", Value: userID.String(), Expires: time.Now().Add(1000 * time.Hour), HttpOnly: true, Secure: false, SameSite: http.SameSiteStrictMode, Path: "/"},
+	}
+	for _, c := range cookies {
+		http.SetCookie(w, &c)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Login successful",
-		"token":   tokenString,
-		"role": roleName,
+		"message":  "Login successful",
+		"token":    tokenString,
+		"role":     roleName,
 		"username": req.Username,
-		"id": userID.String(),
+		"id":       userID.String(),
 	})
 }

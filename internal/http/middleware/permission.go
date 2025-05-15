@@ -8,7 +8,6 @@ import (
 	"github.com/tahsin005/affpilot-auth/internal/utils"
 )
 
-
 // self only middleware
 func SelfOnlyMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
@@ -126,7 +125,7 @@ func SelfOrAuthorizedMiddleware(db *sql.DB, requiredPermission string) mux.Middl
 			if targetUserID == claims.UserID {
 				next.ServeHTTP(w, r)
 				return
-			}
+			}			
 
 			var hasPermission bool
 			query := `

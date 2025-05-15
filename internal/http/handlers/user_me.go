@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	claims, ok := r.Context().Value("user").(*middleware.Claims)
+	fmt.Println(claims)
 	if !ok {
 		utils.WriteError(w, http.StatusUnauthorized, "Unauthorized")
 		return

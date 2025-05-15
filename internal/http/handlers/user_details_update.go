@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/utils"
@@ -31,13 +32,8 @@ func UserUpdateDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Username == "" || req.Email == "" || req.FirstName == "" || req.LastName == "" {
-		utils.WriteError(w, http.StatusBadRequest, "All fields are required")
-		return
-	}
-
-	if !utils.IsValidEmail(req.Email) {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid email format")
+	if req.Username == "" || req.FirstName == "" || req.LastName == "" {
+		utils.WriteError(w, http.StatusBadRequest, "Username, first name, and last name are required")
 		return
 	}
 
@@ -66,53 +62,51 @@ func UserUpdateDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err == sql.ErrNoRows {
-        utils.WriteError(w, http.StatusNotFound, "User not found")
-        return
-    }
-    if err != nil {
-        utils.WriteError(w, http.StatusInternalServerError, "Failed to retrieve user")
-        return
-    }
-
-	emailVerified := user.EmailVerified
-    if req.Email != user.Email {
-        emailVerified = false
-    }
+		utils.WriteError(w, http.StatusNotFound, "User not found")
+		return
+	}
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to retrieve user")
+		return
+	}
 
 	queryStatement = `
         UPDATE users
-        SET username = $1, email = $2, first_name = $3, last_name = $4, 
-            email_verified = $5, updated_at = NOW()
-        WHERE id = $6
+        SET username = $1, first_name = $2, last_name = $3, updated_at = NOW()
+        WHERE id = $4
         RETURNING updated_at
     `
 
 	var updatedAt time.Time
-	err = database.DB.QueryRow(queryStatement, req.Username, req.Email, req.FirstName, req.LastName, emailVerified, userID).Scan(&updatedAt)
+	err = database.DB.QueryRow(queryStatement, req.Username, req.FirstName, req.LastName, userID).Scan(&updatedAt)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			utils.WriteError(w, http.StatusBadRequest, "Username is already taken. Please choose another.")
+			return
+		}
+
 		utils.WriteError(w, http.StatusInternalServerError, "Failed to update user")
 		return
 	}
 
-	user.Username = req.Username
-    user.Email = req.Email
-    user.FirstName = req.FirstName
-    user.LastName = req.LastName
-    user.EmailVerified = emailVerified
-    user.UpdatedAt = updatedAt
 
-    response := models.UpdateUserResponse{
-        ID:            user.ID,
-        Username:      user.Username,
-        Email:         user.Email,
-        FirstName:     user.FirstName,
-        LastName:      user.LastName,
-        EmailVerified: user.EmailVerified,
-        UserType:      user.UserType,
-        Active:        user.Active,
-        CreatedAt:     user.CreatedAt,
-        UpdatedAt:     user.UpdatedAt,
-    }
+	user.Username = req.Username
+	user.FirstName = req.FirstName
+	user.LastName = req.LastName
+	user.UpdatedAt = updatedAt
+
+	response := models.UpdateUserResponse{
+		ID:            user.ID,
+		Username:      user.Username,
+		Email:         user.Email,
+		FirstName:     user.FirstName,
+		LastName:      user.LastName,
+		EmailVerified: user.EmailVerified,
+		UserType:      user.UserType,
+		Active:        user.Active,
+		CreatedAt:     user.CreatedAt,
+		UpdatedAt:     user.UpdatedAt,
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{

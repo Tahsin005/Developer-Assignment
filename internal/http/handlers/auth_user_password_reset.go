@@ -33,12 +33,15 @@ func PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 
 	var userID string
 	var tokenExpiry time.Time
+	var emailVerified, isActive bool
+
 	query := `
-		SELECT id, token_expiry
+		SELECT id, token_expiry, email_verified, active
 		FROM users
-		WHERE verification_token = $1 AND email_verified = TRUE AND active = TRUE
+		WHERE verification_token = $1
 	`
-	err := database.DB.QueryRow(query, req.Token).Scan(&userID, &tokenExpiry)
+	err := database.DB.QueryRow(query, req.Token).Scan(&userID, &tokenExpiry, &emailVerified, &isActive)
+
 	if err == sql.ErrNoRows {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid or expired reset token")
 		return
@@ -49,11 +52,21 @@ func PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !emailVerified {
+		utils.WriteError(w, http.StatusForbidden, "Email not verified. Cannot reset password.")
+		return
+	}
+
+	if !isActive {
+		utils.WriteError(w, http.StatusForbidden, "Account is deactivated. Please contact support.")
+		return
+	}
+
 	if time.Now().UTC().After(tokenExpiry) {
 		utils.WriteError(w, http.StatusBadRequest, "Reset token has expired")
 		return
 	}
-	
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
@@ -75,6 +88,6 @@ func PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Password reset successfully",
+		"message": "Password has been reset successfully.",
 	})
 }
