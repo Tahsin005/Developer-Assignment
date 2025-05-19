@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/tahsin005/affpilot-auth/internal/http/handlers"
+	healthHandlers "github.com/tahsin005/affpilot-auth/internal/http/handlers/health"
 )
 
 func RegisterCheckHealthRoutes(r *mux.Router) {
-	r.HandleFunc("/health", handlers.CheckHealth).Methods(http.MethodGet)
+	r.HandleFunc("/health", healthHandlers.CheckHealth).Methods(http.MethodGet)
 }
