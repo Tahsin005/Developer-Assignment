@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/tahsin005/affpilot-auth/internal/config"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/utils"
 )
@@ -66,7 +66,9 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loginURL := os.Getenv("LOGIN_URL")
+	cfg := config.LoadConfig()
+
+	loginURL := cfg.LoginUrl
 	if loginURL == "" {
 		log.Println("LOGIN_URL environment variable not set, using default")
 		loginURL = "https://github.com/tahsin005"

@@ -2,18 +2,19 @@ package database
 
 import (
 	"log"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/tahsin005/affpilot-auth/internal/config"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateSystemAdminIfNotExists() {
-	username := strings.TrimSpace(os.Getenv("SYSTEM_ADMIN_USERNAME"))
-	password := os.Getenv("SYSTEM_ADMIN_PASSWORD")
-	email := strings.ToLower(strings.TrimSpace(os.Getenv("SYSTEM_ADMIN_EMAIL")))
+	cfg := config.LoadConfig()
+	username := strings.TrimSpace(cfg.SystemAdminCfg.Username)
+	password := cfg.SystemAdminCfg.Password
+	email := strings.ToLower(strings.TrimSpace(cfg.SystemAdminCfg.Email))
 
 	if username == "" || password == "" || email == "" {
 		log.Println("System admin environment variables are missing. Skipping admin creation.")

@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/tahsin005/affpilot-auth/internal/config"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/services"
@@ -69,8 +69,10 @@ func ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cfg := config.LoadConfig()
+
 	// Send verification email
-	emailVerificationURL := os.Getenv("EMAIL_VERIFICATION_URL")
+	emailVerificationURL := cfg.EmailCfg.URLBase + cfg.Port + cfg.EmailCfg.URLSuffix
 	if emailVerificationURL == "" {
 		log.Println("EMAIL_VERIFICATION_URL environment variable not set, using default")
 		emailVerificationURL = "http://localhost:8080/api/v1/auth/verify"

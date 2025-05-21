@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
-	"os"
+
+	"github.com/tahsin005/affpilot-auth/internal/config"
 )
 
 func SendEmail(email, textToBeSent, subject string) {
-	from := os.Getenv("EMAIL_FROM")
-    pass := os.Getenv("EMAIL_PASSWORD")
+    cfg := config.LoadConfig()
+	from := cfg.EmailCfg.From
+    pass := cfg.EmailCfg.Password
     to := email
 
     msg := "From: " + from + "\n" +
@@ -17,8 +19,8 @@ func SendEmail(email, textToBeSent, subject string) {
         "Subject:" + subject + "\n\n" +
         textToBeSent
 
-    err := smtp.SendMail(fmt.Sprintf("%s:%s", os.Getenv("EMAIL_HOST"), os.Getenv("EMAIL_PORT")),
-        smtp.PlainAuth("", from, pass, os.Getenv("EMAIL_HOST")),
+    err := smtp.SendMail(fmt.Sprintf("%s:%s", cfg.EmailCfg.Host, cfg.EmailCfg.Port),
+        smtp.PlainAuth("", from, pass, cfg.EmailCfg.Host),
         from, []string{to}, []byte(msg))
 
     if err != nil {
