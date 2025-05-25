@@ -9,7 +9,7 @@ import (
 )
 
 func SendEmail(email, textToBeSent, subject string) {
-    cfg := config.LoadConfig()
+    cfg := config.GetConfig()
 	from := cfg.EmailCfg.From
     pass := cfg.EmailCfg.Password
     to := email

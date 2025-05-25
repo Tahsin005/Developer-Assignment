@@ -66,7 +66,7 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 
 	loginURL := cfg.LoginUrl
 	if loginURL == "" {

@@ -17,7 +17,7 @@ func main() {
 	log.Println("Server initialized")
 
 	config.LoadEnv()
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 	database.ConnectDB(cfg.DBUrl)
 	database.CreateSystemAdminIfNotExists()
 

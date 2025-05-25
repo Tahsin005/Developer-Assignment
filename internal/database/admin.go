@@ -11,7 +11,7 @@ import (
 )
 
 func CreateSystemAdminIfNotExists() {
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 	username := strings.TrimSpace(cfg.SystemAdminCfg.Username)
 	password := cfg.SystemAdminCfg.Password
 	email := strings.ToLower(strings.TrimSpace(cfg.SystemAdminCfg.Email))

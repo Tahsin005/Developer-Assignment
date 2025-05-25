@@ -11,7 +11,7 @@ func RegisterRoutes() *mux.Router {
 	v1 := api.PathPrefix("/v1").Subrouter()
 
 
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 
 	RegisterCheckHealthRoutes(v1)
 	RegisterAuthRoutes(v1, cfg.JWT_SECRET)

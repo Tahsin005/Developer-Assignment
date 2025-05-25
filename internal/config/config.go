@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/joho/godotenv"
+)
+
+var (
+	cfg  *Config
+	once sync.Once
 )
 
 type EmailConfig struct {
@@ -49,7 +55,7 @@ func LoadEnv() {
 	}
 }
 
-func LoadConfig() *Config {
+func LoadConfig() (*Config, error) {
 	dbConfig := DBConfig {
 		DBHost:     os.Getenv("DB_HOST"),
         DBPort:     os.Getenv("DB_PORT"),
@@ -93,5 +99,17 @@ func LoadConfig() *Config {
 		EmailCfg: emailConfig,
 		SystemAdminCfg: systemAdminCfg,
 		LoginUrl: loginUrl,
-	}
+	}, nil
+}
+
+func GetConfig() *Config {
+	once.Do(func() {
+		var err error
+		cfg, err = LoadConfig()
+		log.Print(cfg)
+		if err != nil {
+			log.Fatalf("failed to load config: %v", err)
+		}
+	})
+	return cfg
 }

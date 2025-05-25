@@ -89,26 +89,6 @@ func PermissionMiddleware(db *sql.DB, requiredPermission string) mux.MiddlewareF
 	}
 }
 
-// system admin only middleware
-func SystemAdminOnlyMiddleware() mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := r.Context().Value("user").(*Claims)
-			if !ok {
-				utils.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-				return
-			}
-
-			if claims.Role != "system_admin" {
-				utils.WriteError(w, http.StatusForbidden, "Forbidden: System Admin access required")
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		})
-	}
-}
-
 // self or authroized middleware (user / admin+ or user / moderator+)
 func SelfOrAuthorizedMiddleware(db *sql.DB, requiredPermission string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {

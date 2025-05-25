@@ -66,7 +66,7 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 
 	claims := &middleware.Claims{
 		UserID:   userID.String(),

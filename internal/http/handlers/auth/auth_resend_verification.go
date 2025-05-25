@@ -69,7 +69,7 @@ func ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := config.LoadConfig()
+	cfg := config.GetConfig()
 
 	// Send verification email
 	emailVerificationURL := cfg.EmailCfg.URLBase + cfg.Port + cfg.EmailCfg.URLSuffix
