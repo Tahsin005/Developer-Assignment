@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -55,9 +56,11 @@ func ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cfg := config.GetConfig()
+	ttl, err := strconv.Atoi(cfg.VerificationTTL)
 	verificationToken = uuid.New().String()
 
-	tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
+	tokenExpiry := time.Now().UTC().Add(time.Duration(ttl) * time.Minute)
 	updateQuery := `
 		UPDATE users
 		SET verification_token = $1, token_expiry = $2, updated_at = $3
@@ -69,12 +72,11 @@ func ResendVerificationEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := config.GetConfig()
 
 	// Send verification email
 	emailVerificationURL := cfg.EmailCfg.URLBase + cfg.Port + cfg.EmailCfg.URLSuffix
 	if emailVerificationURL == "" {
-		log.Println("EMAIL_VERIFICATION_URL environment variable not set, using default")
+		log.Println("Couldn't found email verification url")
 		emailVerificationURL = "http://localhost:8080/api/v1/auth/verify"
 	}
 	verificationLink := fmt.Sprintf("%s/%s", emailVerificationURL, verificationToken)

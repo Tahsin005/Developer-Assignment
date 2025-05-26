@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/services"
 	"github.com/tahsin005/affpilot-auth/internal/utils"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,18 +49,20 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cfg := config.GetConfig()
+
 	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, "Error hashing password")
 		return
 	}
 
+
 	userID := uuid.New()
 	verificationToken := uuid.New().String()
-	// tokenExpiry := time.Now().Add(5 * time.Minute)
-	// now := time.Now()
-	tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
+	ttl, err := strconv.Atoi(cfg.VerificationTTL)
+	tokenExpiry := time.Now().UTC().Add(time.Duration(ttl) * time.Minute)
 	now := time.Now().UTC()
 
 	queryStatement = `
@@ -98,8 +100,6 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusInternalServerError, "Failed to assign role")
 		return
 	}
-
-	cfg := config.GetConfig()
 
 	// Send verification email
 	emailVerificationURL := cfg.EmailCfg.URLBase + cfg.Port + cfg.EmailCfg.URLSuffix

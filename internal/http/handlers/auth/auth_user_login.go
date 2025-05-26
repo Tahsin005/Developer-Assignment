@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -61,23 +62,25 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(req.Password)); err != nil {
+	cfg := config.GetConfig()
+	pass_salt := cfg.PasswordSalt
+	jwt_expiry, err := strconv.Atoi(cfg.JWT.Expiry)
+
+	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(req.Password + pass_salt)); err != nil {
 		utils.WriteError(w, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
-
-	cfg := config.GetConfig()
 
 	claims := &middleware.Claims{
 		UserID:   userID.String(),
 		Username: req.Username,
 		Role:     roleName,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(jwt_expiry) * time.Hour).Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(cfg.JWT_SECRET))
+	tokenString, err := token.SignedString([]byte(cfg.JWT.Secret))
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, "Failed to generate token")
 		return

@@ -34,7 +34,9 @@ func CreateSystemAdminIfNotExists() {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	pass_salt := cfg.PasswordSalt
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password + pass_salt), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println("Error hashing system admin password:", err)
 		return

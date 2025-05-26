@@ -29,13 +29,20 @@ type SystemAdminConfig struct {
 	Email string
 }
 
+type JwtConfig struct {
+	Secret string
+	Expiry string
+}
+
 type Config struct {
 	DBUrl string
 	Port string
-	JWT_SECRET string
+	JWT JwtConfig
 	EmailCfg EmailConfig
 	SystemAdminCfg SystemAdminConfig
 	LoginUrl string
+	VerificationTTL string
+	PasswordSalt string
 }
 
 type DBConfig struct {
@@ -69,7 +76,10 @@ func LoadConfig() (*Config, error) {
 
 	port := os.Getenv("SERVER_PORT")
 
-	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtCfg := JwtConfig {
+		Secret: os.Getenv("JWT_SECRET"),
+		Expiry: os.Getenv("JWT_EXPIRY"),
+	}
 
 	emailConfig := EmailConfig {
 		URLBase: os.Getenv("EMAIL_VERIFICATION_BASE"),
@@ -86,6 +96,10 @@ func LoadConfig() (*Config, error) {
 		Email: os.Getenv("SYSTEM_ADMIN_EMAIL"),
 	}
 
+	verificationTTLcfg := os.Getenv("VERIFICATION_TOKEN_TTL")
+
+	passwordSaltcfg := os.Getenv("PASSWORD_SALT")
+
 	loginUrl := os.Getenv("LOGIN_URL")
 
 	if port == "" {
@@ -97,11 +111,13 @@ func LoadConfig() (*Config, error) {
 
 	return &Config{
 		DBUrl: dbURL,
-		JWT_SECRET: jwtSecret,
+		JWT: jwtCfg,
 		Port:  port,
 		EmailCfg: emailConfig,
 		SystemAdminCfg: systemAdminCfg,
 		LoginUrl: loginUrl,
+		VerificationTTL: verificationTTLcfg,
+		PasswordSalt: passwordSaltcfg,
 	}, nil
 }
 

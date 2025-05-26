@@ -14,10 +14,10 @@ func RegisterRoutes() *mux.Router {
 	cfg := config.GetConfig()
 
 	RegisterCheckHealthRoutes(v1)
-	RegisterAuthRoutes(v1, cfg.JWT_SECRET)
-	RegisterUserRoutes(v1, cfg.JWT_SECRET)
-	RegisterRoleRoutes(v1, cfg.JWT_SECRET)
-	RegisterPermissionRoutes(v1, cfg.JWT_SECRET)
+	RegisterAuthRoutes(v1, cfg.JWT.Secret)
+	RegisterUserRoutes(v1, cfg.JWT.Secret)
+	RegisterRoleRoutes(v1, cfg.JWT.Secret)
+	RegisterPermissionRoutes(v1, cfg.JWT.Secret)
 
 	return r
 }

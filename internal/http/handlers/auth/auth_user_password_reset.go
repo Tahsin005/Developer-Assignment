@@ -11,7 +11,6 @@ import (
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/utils"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +66,7 @@ func PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashPassword(req.NewPassword)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
 		utils.WriteError(w, http.StatusInternalServerError, "Error processing password")

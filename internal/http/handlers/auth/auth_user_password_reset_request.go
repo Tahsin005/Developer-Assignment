@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/tahsin005/affpilot-auth/internal/config"
 	"github.com/tahsin005/affpilot-auth/internal/database"
 	"github.com/tahsin005/affpilot-auth/internal/models"
 	"github.com/tahsin005/affpilot-auth/internal/services"
@@ -45,6 +47,8 @@ func PasswordResetRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cfg := config.GetConfig()
+
 	if err != sql.ErrNoRows {
 		if !emailVerified {
 			utils.WriteError(w, http.StatusForbidden, "Email not verified. Please verify your email before requesting a password reset.")
@@ -55,8 +59,9 @@ func PasswordResetRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		ttl, err := strconv.Atoi(cfg.VerificationTTL)
 		resetToken := uuid.New().String()
-		tokenExpiry := time.Now().UTC().Add(5 * time.Minute)
+		tokenExpiry := time.Now().UTC().Add(time.Duration(ttl) * time.Minute)
 
 		query = `
 			UPDATE users
@@ -76,10 +81,10 @@ Your password reset token is:
 
 		%s
 
-Please use this token to reset your password. The token will expire in 5 minutes.
+Please use this token to reset your password. The token will expire in %s minutes.
 If you did not request this, please ignore this email.
 Best regards,  
-The Affpilot Team`, resetToken)
+The Affpilot Team`, resetToken, cfg.VerificationTTL)
 
 		go services.SendEmail(req.Email, emailBody, "Password Reset Request")
 	}
