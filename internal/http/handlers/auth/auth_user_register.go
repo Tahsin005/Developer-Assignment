@@ -104,7 +104,7 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Send verification email
 	emailVerificationURL := cfg.EmailCfg.URLBase + cfg.Port + cfg.EmailCfg.URLSuffix
 	if emailVerificationURL == "" {
-		log.Println("EMAIL_VERIFICATION_URL environment variable not set, using default")
+		log.Println("Couldn't found email verification url")
 		emailVerificationURL = "http://localhost:8080/api/v1/auth/verify"
 	}
 	verificationLink := fmt.Sprintf("%s/%s", emailVerificationURL, verificationToken)

@@ -46,8 +46,6 @@ type DBConfig struct {
     DBName string
 }
 
-
-
 func LoadEnv() {
 	err := godotenv.Load()
 	if err != nil {
@@ -63,12 +61,16 @@ func LoadConfig() (*Config, error) {
         DBPassword: os.Getenv("DB_PASSWORD"),
         DBName:     os.Getenv("DB_NAME"),
 	}
+
 	dbURL := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		dbConfig.DBHost, dbConfig.DBUser, dbConfig.DBPassword, dbConfig.DBName, dbConfig.DBPort,
 	)
+
 	port := os.Getenv("SERVER_PORT")
+
 	jwtSecret := os.Getenv("JWT_SECRET")
+
 	emailConfig := EmailConfig {
 		URLBase: os.Getenv("EMAIL_VERIFICATION_BASE"),
 		URLSuffix: os.Getenv("EMAIL_VERIFICATION_URL_SUFFIX"),
@@ -77,6 +79,7 @@ func LoadConfig() (*Config, error) {
 		Port: os.Getenv("EMAIL_PORT"),
 		Password: os.Getenv("EMAIL_PASSWORD"),
 	}
+	
 	systemAdminCfg := SystemAdminConfig {
 		Username: os.Getenv("SYSTEM_ADMIN_USERNAME"),
 		Password: os.Getenv("SYSTEM_ADMIN_PASSWORD"),
