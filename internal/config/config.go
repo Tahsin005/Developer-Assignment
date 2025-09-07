@@ -1,12 +1,31 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
 )
+
+var (
+	cfg *Config
+	once     sync.Once
+)
+
+// GetConfig returns the singleton instance of Config
+func GetConfig() *Config {
+	once.Do(func() {
+		config, err := LoadConfig()
+		if err != nil {
+			panic(fmt.Sprintf("Failed to load config: %v", err))
+		}
+		cfg = config
+	})
+	return cfg
+}
 
 // Config holds all configuration for the application
 type Config struct {
@@ -22,6 +41,7 @@ type Config struct {
 type AppConfig struct {
 	Environment string
 	LogLevel    string
+	AppURL      string // Added for password reset and other URLs
 }
 
 // DatabaseConfig holds database connection information
@@ -31,6 +51,7 @@ type DatabaseConfig struct {
 	User     string
 	Password string
 	Name     string
+	SSLmode  string
 }
 
 // JWTConfig holds JWT configuration
@@ -48,14 +69,14 @@ type AdminConfig struct {
 
 // EmailConfig holds email configuration
 type EmailConfig struct {
-	VerificationURL  string
-	From             string
-	Host             string
-	Port             int
-	Username         string
-	Password         string
-	Secure           bool
-	VerificationTTL  int
+	VerificationURL string
+	From            string
+	Host            string
+	Port            int
+	Username        string
+	Password        string
+	Secure          bool
+	VerificationTTL int
 }
 
 // ServerConfig holds server configuration
@@ -70,33 +91,39 @@ func LoadConfig() (*Config, error) {
 
 	// Parse DB port
 	dbPort, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
-	
+
 	// Parse JWT expiry
 	jwtExpiry, _ := time.ParseDuration(getEnv("JWT_EXPIRY", "24h"))
-	
+
 	// Parse email port
 	emailPort, _ := strconv.Atoi(getEnv("EMAIL_PORT", "587"))
-	
+
 	// Parse email secure
 	emailSecure, _ := strconv.ParseBool(getEnv("EMAIL_SECURE", "true"))
-	
+
 	// Parse verification token TTL
 	verificationTTL, _ := strconv.Atoi(getEnv("VERIFICATION_TOKEN_TTL", "5"))
-	
+
+	baseURL := getEnv("BASE_URL", "http://localhost:8080")
+
 	// Parse server port
 	serverPort, _ := strconv.Atoi(getEnv("SERVER_PORT", "8080"))
+
+	EMAIL_VERIFICATION_URL := fmt.Sprintf("%s/api/v1/auth/verify", baseURL)
 
 	return &Config{
 		App: AppConfig{
 			Environment: getEnv("APP_ENV", "development"),
 			LogLevel:    getEnv("LOG_LEVEL", "debug"),
+			AppURL: 	baseURL,
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     dbPort,
 			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", "postgres"),
+			Password: getEnv("DB_PASSWORD", "affpilot"),
 			Name:     getEnv("DB_NAME", "affpilot_auth"),
+			SSLmode:  getEnv("SSLmode", "affpilot_auth"),
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key-here"),
@@ -108,7 +135,7 @@ func LoadConfig() (*Config, error) {
 			Email:    getEnv("SYSTEM_ADMIN_EMAIL", "admin@example.com"),
 		},
 		Email: EmailConfig{
-			VerificationURL: getEnv("EMAIL_VERIFICATION_URL", "http://localhost:8080/api/v1/auth/verify"),
+			VerificationURL: EMAIL_VERIFICATION_URL,
 			From:            getEnv("EMAIL_FROM", "no-reply@example.com"),
 			Host:            getEnv("EMAIL_HOST", "smtp.example.com"),
 			Port:            emailPort,

@@ -61,7 +61,8 @@ INSERT INTO roles (name, description) VALUES
     ('system_admin', 'Full system access with ability to manage all aspects of the system'),
     ('admin', 'Administrative access with limitations on managing other admins'),
     ('moderator', 'Can manage content but cannot delete users directly'),
-    ('user', 'Regular user with access only to their own data');
+    ('user', 'Regular user with access only to their own data')
+ON CONFLICT (name) DO NOTHING;
 
 -- Insert default permissions
 INSERT INTO permissions (name, resource, action, description) VALUES
@@ -79,7 +80,8 @@ INSERT INTO permissions (name, resource, action, description) VALUES
     ('permission:read', 'permission', 'read', 'Read permissions'),
     ('user:promote:admin', 'user', 'promote:admin', 'Promote user to admin'),
     ('user:promote:moderator', 'user', 'promote:moderator', 'Promote user to moderator'),
-    ('user:demote', 'user', 'demote', 'Demote user role');
+    ('user:demote', 'user', 'demote', 'Demote user role')
+ON CONFLICT (name) DO NOTHING;
 
 -- Assign permissions to roles
 -- System Admin permissions
@@ -87,7 +89,8 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT 
     (SELECT id FROM roles WHERE name = 'system_admin'), 
     id 
-FROM permissions;
+FROM permissions
+ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- Admin permissions
 INSERT INTO role_permissions (role_id, permission_id)
@@ -95,7 +98,8 @@ SELECT
     (SELECT id FROM roles WHERE name = 'admin'), 
     id 
 FROM permissions
-WHERE name NOT IN ('user:promote:admin');
+WHERE name NOT IN ('user:promote:admin')
+ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- Moderator permissions
 INSERT INTO role_permissions (role_id, permission_id)
@@ -108,7 +112,8 @@ WHERE name IN (
     'user:read:self', 
     'user:update:self', 
     'user:delete:self'
-);
+)
+ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- User permissions
 INSERT INTO role_permissions (role_id, permission_id)
@@ -120,4 +125,5 @@ WHERE name IN (
     'user:read:self', 
     'user:update:self', 
     'user:delete:self'
-);
+)
+ON CONFLICT (role_id, permission_id) DO NOTHING;
