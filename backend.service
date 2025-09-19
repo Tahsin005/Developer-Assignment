@@ -1,0 +1,17 @@
+[Unit]
+Description=AffPilot Auth Go Service
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Developer-Assignment
+ExecStart=/home/ubuntu/Developer-Assignment/myapp
+EnvironmentFile=/home/ubuntu/Developer-Assignment/.env
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
