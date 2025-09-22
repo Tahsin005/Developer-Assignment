@@ -21,18 +21,24 @@ func main() {
 	database.ConnectDB(cfg.DBUrl)
 	database.CreateSystemAdminIfNotExists()
 
-
 	defer database.DB.Close()
 
 	router := routes.RegisterRoutes()
 
+	// corsHandler := cors.New(cors.Options{
+	// 	AllowedOrigins:   []string{"*"}, // Frontend origin
+	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"Content-Type", "Authorization"},
+	// 	AllowCredentials: true,
+	// }).Handler(router)
+
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Frontend origin
+		AllowedOrigins:   []string{"http://16.176.216.44"}, // your EC2 frontend origin
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}).Handler(router)
 
 	log.Println("Starting server on port " + cfg.Port)
-	log.Fatal(http.ListenAndServe(":" + cfg.Port, corsHandler))
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, corsHandler))
 }
