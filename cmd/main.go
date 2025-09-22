@@ -27,12 +27,12 @@ func main() {
 	router := routes.RegisterRoutes()
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // Frontend origin
+		AllowedOrigins:   []string{"*"}, // Frontend origin
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}).Handler(router)
-	
+
 	log.Println("Starting server on port " + cfg.Port)
 	log.Fatal(http.ListenAndServe(":" + cfg.Port, corsHandler))
 }
